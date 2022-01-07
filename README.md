@@ -1,8 +1,8 @@
-# Welcome to your CDK TypeScript project!
+# cdk-cloudfront-cross-region-sample
 
-This is a blank project for TypeScript development with CDK.
+To learn more, see the following blog.
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+[AWS CDK（cdk\-remote\-stack）でACMとCloudFrontのクロスリージョン参照を実装する \| DevelopersIO](https://dev.classmethod.jp/articles/cdk-remote-stack-for-acm-and-cloudfront/)
 
 ## Useful commands
 
