@@ -1,14 +1,16 @@
 import { Construct } from "constructs"
-import { Stack, StackProps, CfnOutput } from "aws-cdk-lib"
+import * as cdk from "aws-cdk-lib"
 import * as route53 from "aws-cdk-lib/aws-route53"
 import * as certificatemanager from "aws-cdk-lib/aws-certificatemanager"
 
-interface AcmForCloudfrontStackProps extends StackProps {
+interface AcmForCloudfrontStackProps extends cdk.StackProps {
   hostName: string
   domainName: string
 }
 
-export class AcmForCloudfrontStack extends Stack {
+export class AcmForCloudfrontStack extends cdk.Stack {
+  public readonly certificate: certificatemanager.Certificate
+
   constructor(scope: Construct, id: string, props: AcmForCloudfrontStackProps) {
     super(scope, id, props)
 
@@ -16,19 +18,9 @@ export class AcmForCloudfrontStack extends Stack {
       domainName: props.domainName,
     })
 
-    const certificate = new certificatemanager.DnsValidatedCertificate(
-      this,
-      "Certificate",
-      {
-        domainName: `${props.hostName}.${props.domainName}`,
-        hostedZone: hostedZone,
-        validation:
-          certificatemanager.CertificateValidation.fromDns(hostedZone),
-      },
-    )
-
-    new CfnOutput(this, "AcmArn", {
-      value: certificate.certificateArn,
+    this.certificate = new certificatemanager.Certificate(this, "Certificate", {
+      domainName: `${props.hostName}.${props.domainName}`,
+      validation: certificatemanager.CertificateValidation.fromDns(hostedZone),
     })
   }
 }

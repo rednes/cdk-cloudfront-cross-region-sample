@@ -2,7 +2,6 @@
 import "source-map-support/register"
 import * as cdk from "aws-cdk-lib"
 import { AcmForCloudfrontStack } from "../lib/acm-for-cloudfront-stack"
-import { RemoteOutputStack } from "../lib/remote-output-stack"
 import { CloudfrontStack } from "../lib/cloudfront-stack"
 
 const account = "<<YOUR_AWS_ACCOUNT_NO>>"
@@ -26,21 +25,16 @@ const acmForCloudfront = new AcmForCloudfrontStack(
   "AcmForCloudfrontStack",
   {
     env: envUS,
+    crossRegionReferences: true,
     domainName,
     hostName,
   },
 )
 
-const remoteOutput = new RemoteOutputStack(app, "RemoteOutput", {
+const cloudfront = new CloudfrontStack(app, "CloudFrontStack", {
   env: envJP,
-  acm: acmForCloudfront,
-})
-
-const cloudfront = new CloudfrontStack(app, "CloudFront", {
-  env: envJP,
+  crossRegionReferences: true,
   domainName,
   hostName,
-  acmArn: remoteOutput.acmArn,
+  certificate: acmForCloudfront.certificate,
 })
-
-cloudfront.addDependency(acmForCloudfront)

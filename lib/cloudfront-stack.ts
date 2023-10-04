@@ -1,25 +1,27 @@
 import { Construct } from "constructs"
-import { CfnOutput, RemovalPolicy, Stack, StackProps } from "aws-cdk-lib"
+import * as cdk from "aws-cdk-lib"
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront"
 import * as iam from "aws-cdk-lib/aws-iam"
 import * as s3 from "aws-cdk-lib/aws-s3"
 import * as s3deploy from "aws-cdk-lib/aws-s3-deployment"
 import * as route53 from "aws-cdk-lib/aws-route53"
 import * as targets from "aws-cdk-lib/aws-route53-targets"
+import * as certificatemanager from "aws-cdk-lib/aws-certificatemanager"
 
-interface CloudfrontStackProps extends StackProps {
+interface CloudfrontStackProps extends cdk.StackProps {
   hostName: string
   domainName: string
-  acmArn: string
+  certificate: certificatemanager.Certificate
 }
 
-export class CloudfrontStack extends Stack {
+export class CloudfrontStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: CloudfrontStackProps) {
     super(scope, id, props)
 
     // Create Bucket
     const myBucket = new s3.Bucket(this, "my-bucket", {
-      removalPolicy: RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
     })
     new s3deploy.BucketDeployment(this, "BucketDeploy", {
       destinationBucket: myBucket,
@@ -48,13 +50,12 @@ export class CloudfrontStack extends Stack {
       this,
       "WebsiteDistribution",
       {
-        viewerCertificate: {
-          aliases: [`${props.hostName}.${props.domainName}`],
-          props: {
-            acmCertificateArn: props.acmArn,
-            sslSupportMethod: "sni-only",
+        viewerCertificate: cloudfront.ViewerCertificate.fromAcmCertificate(
+          props.certificate,
+          {
+            aliases: [`${props.hostName}.${props.domainName}`],
           },
-        },
+        ),
         priceClass: cloudfront.PriceClass.PRICE_CLASS_ALL,
         originConfigs: [
           {
@@ -96,10 +97,6 @@ export class CloudfrontStack extends Stack {
         new targets.CloudFrontTarget(distribution),
       ),
       recordName: props.hostName,
-    })
-
-    new CfnOutput(this, "Output", {
-      value: props.acmArn,
     })
   }
 }
