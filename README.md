@@ -2,7 +2,7 @@
 
 To learn more, see the following blog.
 
-[AWS CDK（cdk\-remote\-stack）でACMとCloudFrontのクロスリージョン参照を実装する \| DevelopersIO](https://dev.classmethod.jp/articles/cdk-remote-stack-for-acm-and-cloudfront/)
+[AWS CDK公式の機能でACMとCloudFrontのクロスリージョン参照を実装する \| DevelopersIO](https://dev.classmethod.jp/articles/cdk-cross-region-references-for-acm-and-cloudfront/)
 
 ## Useful commands
 
