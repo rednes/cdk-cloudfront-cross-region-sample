@@ -1,42 +1,46 @@
 #!/usr/bin/env node
-import 'source-map-support/register';
-import * as cdk from 'aws-cdk-lib';
-import { AcmForCloudfrontStack } from "../lib/acm-for-cloudfront-stack";
-import { RemoteOutputStack } from "../lib/remote-output-stack";
-import { CloudfrontStack } from "../lib/cloudfront-stack";
+import "source-map-support/register"
+import * as cdk from "aws-cdk-lib"
+import { AcmForCloudfrontStack } from "../lib/acm-for-cloudfront-stack"
+import { RemoteOutputStack } from "../lib/remote-output-stack"
+import { CloudfrontStack } from "../lib/cloudfront-stack"
 
-const account = '<<YOUR_AWS_ACCOUNT_NO>>';
-const domainName = '<<YOUR_PUBLIC_DOMAIN_NAME>>';
-const hostName = 'cf-cross';
+const account = "<<YOUR_AWS_ACCOUNT_NO>>"
+const domainName = "<<YOUR_PUBLIC_DOMAIN_NAME>>"
+const hostName = "cf-cross"
 
 const envJP: cdk.Environment = {
-    account,
-    region: 'ap-northeast-1',
-};
+  account,
+  region: "ap-northeast-1",
+}
 
 const envUS: cdk.Environment = {
-    account,
-    region: 'us-east-1',
-};
+  account,
+  region: "us-east-1",
+}
 
-const app = new cdk.App();
+const app = new cdk.App()
 
-const acmForCloudfront = new AcmForCloudfrontStack(app, 'AcmForCloudfrontStack', {
+const acmForCloudfront = new AcmForCloudfrontStack(
+  app,
+  "AcmForCloudfrontStack",
+  {
     env: envUS,
     domainName,
     hostName,
-});
+  },
+)
 
-const remoteOutput = new RemoteOutputStack(app, 'RemoteOutput', {
-    env: envJP,
-    acm: acmForCloudfront,
-});
+const remoteOutput = new RemoteOutputStack(app, "RemoteOutput", {
+  env: envJP,
+  acm: acmForCloudfront,
+})
 
-const cloudfront = new CloudfrontStack(app, 'CloudFront', {
-    env: envJP,
-    domainName,
-    hostName,
-    acmArn: remoteOutput.acmArn,
-});
+const cloudfront = new CloudfrontStack(app, "CloudFront", {
+  env: envJP,
+  domainName,
+  hostName,
+  acmArn: remoteOutput.acmArn,
+})
 
-cloudfront.addDependency(acmForCloudfront);
+cloudfront.addDependency(acmForCloudfront)
